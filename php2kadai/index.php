@@ -76,7 +76,7 @@
     <form action="insert.php" method="POST">
         <div class="jumbotron">
             <div class="form-inner">
-                <legend class="title">BOOK REGISTER</legend>
+                <legend class="title">BOOK</legend>
                 <div class="form-title">書籍名</div>
                     <div class="form-item"><input type="text" name="name" class="form-parts"></div>
                 <div class="form-title">書籍URL</div>

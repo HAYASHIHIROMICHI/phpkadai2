@@ -1,52 +1,77 @@
 <?php
-
 require_once('funcs.php');
-
-//1.POSTでデータの取得
-
-$name = $_POST['name'];
-$url = $_POST['url'];
-$content = $_POST['content'];
-
-
-//2.DB接続する
-
+//1.  DB接続します
 // try {
-//     //ID:'root', Password: 'root'
-//     $pdo = new PDO('mysql:dbname=php_kadai;charset=utf8;host=localhost', 'root', 'root');
+//     //Password:MAMP='root',XAMPP=''
+//     $pdo = new PDO('mysql:dbname=gs_db;charset=utf8;host=localhost', 'root', 'root');
 // } catch (PDOException $e) {
-//     exit('DBConnectError:' . $e->getMessage());
+//     exit('DBConnectError' . $e->getMessage());
 // }
 $pdo = db_conn();
 
-
-
-//3.データ登録SQLの作成
-
-// 1. SQL文を用意
-$stmt = $pdo->prepare("INSERT INTO gs_bm_table(id, name, url, content, date)
-                        VALUES(NULL, :name, :url, :content, sysdate())");
-
-// 2. バインド変数を用意
-$stmt->bindValue(':name', $name, PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
-$stmt->bindValue(':url', $url, PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
-$stmt->bindValue(':content', $content, PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
-
-// 3. 実行
+//２．データ取得SQL作成
+$stmt = $pdo->prepare("SELECT * FROM gs_bm_table");
 $status = $stmt->execute();
 
-//４．データ登録処理後
+//３．データ表示
+$view = "";
 if ($status == false) {
-    //SQL実行時にエラーがある場合（エラーオブジェクト取得して表示）
+    //execute（SQL実行時にエラーがある場合）
     $error = $stmt->errorInfo();
-    exit("ErrorMessage:" . $error[2]);
+    exit("ErrorQuery:" . $error[2]);
 } else {
-    //５．index.phpへリダイレクト
-    header('Location: index.php');
+    //Selectデータの数だけ自動でループしてくれる
+    //FETCH_ASSOC=http://php.net/manual/ja/pdostatement.fetch.php
+    while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $view .= '<p>';
+        $view .= h($result['date']) . ':' . h($result['name']) . ':' . h($result['content']);
+        $view .= '</p>';
+    }
 }
-
-
-
-
-
 ?>
+
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>フリーアンケート表示</title>
+    <link href="css/reset.css" rel="stylesheet">
+    <style>
+
+    div {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    body{
+        background-color: #F2F2F2;
+    }
+
+</style>
+</head>
+
+<body id="main">
+    <!-- Head[Start] -->
+    <header>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="index.php">データ登録</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- Head[End] -->
+
+    <!-- Main[Start] -->
+    <div>
+        <div class="container jumbotron"><?= $view ?></div>
+    </div>
+    <!-- Main[End] -->
+</body>
+
+</html>
